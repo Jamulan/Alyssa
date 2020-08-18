@@ -3,6 +3,9 @@ VULKAN_SDK_PATH = /home/jamulan/Dev/Vulkan/1.2.148.1/x86_64
 CFLAGS = -std=c++17 -I$(VULKAN_SDK_PATH)/include
 LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `pkg-config --static --libs glfw3` -lvulkan
 
+all: Vulkan_First
+
+
 Vulkan_First: main.cpp
 	g++ $(CFLAGS) -o make-build/Vulkan_First main.cpp $(LDFLAGS)
 
