@@ -45,7 +45,7 @@ private:
 
     void initVulkan() {
         createInstance();
-//        pickPhysicalDevice();
+        pickPhysicalDevice();
     }
 
     void createInstance() {
@@ -130,7 +130,8 @@ private:
         std::vector<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-        for(const auto& device : devices) {
+        // TODO score available devices and pick the highest scored device
+        for(const auto& device : devices) { // for now this just picks the first suitable device
             if(isDeviceSuitable(device)) {
                 physicalDevice = device;
                 break;
@@ -143,7 +144,12 @@ private:
     }
 
     bool isDeviceSuitable(VkPhysicalDevice device) {
-        return true;
+        VkPhysicalDeviceProperties deviceProperties;
+        vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+        bool usable = deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+
+        return usable;
     }
 
     void mainLoop() {
