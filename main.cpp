@@ -44,6 +44,7 @@ private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice device; // the logical device
     VkQueue graphicsQueue;
+    VkSurfaceKHR surface;
 
     void initWindow() {
         glfwInit();
@@ -55,6 +56,7 @@ private:
 
     void initVulkan() {
         createInstance();
+        createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
     }
@@ -95,15 +97,15 @@ private:
             throw std::runtime_error("filed to create instance!");
         }
 
-//        uint32_t extensionCount = 0;
-//        std::vector<VkExtensionProperties> extensions(extensionCount);
-//        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-//
-//        std::cout << "available extensions:\n";
-//
-//        for (const auto& extension :: extensions) {
-//           std::cout << '\t' << extension.extensionName << '\n';
-//        }
+        uint32_t extensionCount = 0;
+        std::vector<VkExtensionProperties> extensions(extensionCount);
+        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
+
+        std::cout << "available extensions:\n";
+
+        for (const auto& extension : extensions) {
+           std::cout << '\t' << extension.extensionName << '\n';
+        }
     }
 
     bool checkValidationLayerSupport() {
@@ -129,6 +131,12 @@ private:
         }
 
         return true;
+    }
+
+    void createSurface() {
+        if(glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create window surface!");
+        }
     }
 
     void pickPhysicalDevice() {
@@ -233,6 +241,8 @@ private:
 
     void cleanup() {
         vkDestroyDevice(device, nullptr);
+
+        vkDestroySurfaceKHR(instance, surface, nullptr);
 
         vkDestroyInstance(instance, nullptr);
 
