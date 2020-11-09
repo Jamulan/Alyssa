@@ -16,6 +16,9 @@
 #include <fstream>
 #include <array>
 
+#define VMA_IMPLEMENTATION
+#include "VulkanMemoryAllocator/src/vk_mem_alloc.h"
+
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -116,6 +119,7 @@ private:
     VkInstance instance;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice device; // the logical device
+    VmaAllocator allocator;
     VkSurfaceKHR surface;
     VkQueue graphicsQueue;
     VkQueue presentQueue;
@@ -159,6 +163,7 @@ private:
         createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
+        createAllocator();
         createSwapChain();
         createImageViews();
         createRenderPass();
@@ -444,6 +449,18 @@ private:
 
         vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
         vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+    }
+
+    void createAllocator() {
+        VmaAllocatorCreateInfo allocatorInfo{};
+        allocatorInfo.vulkanApiVersion = VK_API_VERSION_1_2;
+        allocatorInfo.physicalDevice = physicalDevice;
+        allocatorInfo.device = device;
+        allocatorInfo.instance = instance;
+
+        if(vmaCreateAllocator(&allocatorInfo, &allocator) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create allocator!");
+        }
     }
 
     void recreateSwapChain() {
@@ -1053,6 +1070,7 @@ private:
             vkDestroyFence(device, inFlightFences[i], nullptr);
         }
         vkDestroyCommandPool(device, commandPool, nullptr);
+        vmaDestroyAllocator(allocator);
         vkDestroyDevice(device, nullptr);
         vkDestroySurfaceKHR(instance, surface, nullptr);
         vkDestroyInstance(instance, nullptr);
