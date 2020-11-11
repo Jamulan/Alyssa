@@ -5,11 +5,11 @@ LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `pkg-config --static --libs glfw3` -lvulkan
 
 all: Vulkan_First Vulkan_First-Debug
 
-Vulkan_First-Debug: main.cpp Shaders Textures
+Vulkan_First-Debug: main.cpp Shaders Textures Models
 	g++ $(CFLAGS) -g -o make-build/Vulkan_First-Debug main.cpp $(LDFLAGS)
 
-Vulkan_First: main.cpp Shaders Textures
-	g++ $(CFLAGS) -o make-build/Vulkan_First main.cpp $(LDFLAGS)
+Vulkan_First: main.cpp Shaders Textures Models
+	g++ $(CFLAGS) -O3 -o make-build/Vulkan_First main.cpp $(LDFLAGS)
 
 .PHONY: test clean
 
@@ -28,3 +28,7 @@ Shaders: shaders/shader.vert shaders/shader.frag
 Textures: textures/*
 	mkdir -p make-build/textures
 	cp textures/* make-build/textures/
+
+Models: models/*
+	mkdir -p make-build/models
+	cp models/* make-build/models/
