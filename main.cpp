@@ -30,8 +30,8 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-const std::string MODEL_PATH = "models/Dodecahedron.obj";
-const std::string TEXTURE_PATH = "textures/Dodecahedron.png";
+const std::string MODEL_PATH = "assets/models/Dodecahedron.obj";
+const std::string TEXTURE_PATH = "assets/textures/Dodecahedron.png";
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -721,8 +721,8 @@ private:
     }
 
     void createGraphicsPipeline() {
-        auto vertShaderCode = readFile("shaders/vert.spv");
-        auto fragShaderCode = readFile("shaders/frag.spv");
+        auto vertShaderCode = readFile("assets/shaders/vert.spv");
+        auto fragShaderCode = readFile("assets/shaders/frag.spv");
 
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
