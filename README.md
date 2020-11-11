@@ -1,5 +1,5 @@
-# Vulkan-First
-Vulkan-First is my first project working with Vulkan.
+# Alyssa
+Alyssa is my first project working with Vulkan.
 
 based on [this](https://vulkan-tutorial.com)
 
@@ -23,9 +23,6 @@ Make sure that $VULKAN_SDK is set to the path of the SDK (ex; `~/VulkanSDK/x86_6
 `glfw-wayland` *should* work but is untested
 
 run `updateLibs.sh` to fetch `stb_image` and `tiny_obj_loader` and create the `libs` directory
-
-## build
-once the dependencies are properly resolved run `make`
 
 ## why bother?
 - Making my own seemed easier than learning to use a different engine
