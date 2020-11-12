@@ -7,24 +7,33 @@
 
 #include <GLFW/glfw3.h>
 #include <vector>
+#include "Core.h"
 #include "World.h"
+#include "Util.h"
 
 
 class Application {
 public:
     void run();
+    void init(Core *core);
 
 private:
     char* appName;
     uint32_t appVer;
     uint32_t width;
     uint32_t height;
-    GLFWwindow* window;
+    VkSurfaceKHR surface;
+    GLFWwindow* window; // one window = one Application, if I need another window make a separate Application
+    VkSwapchainKHR swapChain;
+    std::vector<VkImage> swapChainImages;
+    VkFormat swapChainImageFormat;
+    VkExtent2D swapChainExtent;
 
-    World currWorld;
-    std::vector<World> worlds;
+    World world;
 
     void initWindow();
+    void createSurface(Core *core);
+    void createSwapChain(Core *core);
 
 public:
     char *getAppName() const;
@@ -32,6 +41,8 @@ public:
     uint32_t getAppVer() const;
 
     GLFWwindow *getWindow() const;
+
+    VkSurfaceKHR_T *getSurface() const;
 
 };
 

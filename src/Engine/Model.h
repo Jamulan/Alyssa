@@ -10,19 +10,14 @@
 #include <vector>
 #include <array>
 
-struct Vertex {
-    glm::vec3 pos;
-    glm::vec3 color;
-    glm::vec2 texCoord;
-    static VkVertexInputBindingDescription getBindingDescription();
-    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions();
-    bool operator==(const Vertex& other) const;
-};
+#include "Util.h"
+#include "Material.h"
 
 class Model {
 public:
 
 private:
+    Material material;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     VkBuffer vertexBuffer;
@@ -33,6 +28,9 @@ private:
     std::vector<VkDeviceMemory> uniformBuffersMemory;
     std::vector<VkCommandBuffer> commandBuffers;
 
+
+public:
+    const Material &getMaterial() const;
 };
 
 

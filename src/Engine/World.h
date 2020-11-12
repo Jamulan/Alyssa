@@ -6,7 +6,14 @@
 #define ALYSSA_WORLD_H
 
 
+#include <vector>
+#include "Model.h"
+
 class World { // this class is what will tie everything together into a Scene or World
+public:
+
+private:
+    std::vector<Model> models;
 
 };
 

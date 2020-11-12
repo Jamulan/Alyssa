@@ -7,12 +7,17 @@
 
 
 #include <vulkan/vulkan.h>
+#include "Util.h"
 
 class Material {
 public:
 
 private:
     VkPipeline graphicsPipeline;
+    VkShaderModule vertShaderModule;
+    VkShaderModule fragShaderModule;
+
+    void createGraphicsPipeline();
 };
 
 

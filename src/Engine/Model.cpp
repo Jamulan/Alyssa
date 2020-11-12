@@ -3,3 +3,7 @@
 //
 
 #include "Model.h"
+
+const Material &Model::getMaterial() const {
+    return material;
+}
