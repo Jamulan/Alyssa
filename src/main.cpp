@@ -1,107 +1,48 @@
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXperimental
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/hash.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 
-#include <vector>
-#include <iostream>
-#include <stdexcept>
-#include <cstdlib>
-#include <cstring>
-#include <cstdint>
-#include <optional>
-#include <set>
-#include <fstream>
-#include <array>
-#include <chrono>
-#include <unordered_map>
+#include "main.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
+bool QueueFamilyIndices::isComplete() {
+    return graphicsFamily.has_value() && presentFamily.has_value();
+}
 
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
+VkVertexInputBindingDescription Vertex::getBindingDescription() {
+    VkVertexInputBindingDescription bindingDescription{};
+    bindingDescription.binding = 0;
+    bindingDescription.stride = sizeof(Vertex);
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-const std::string MODEL_PATH = "assets/models/Dodecahedron.obj";
-const std::string TEXTURE_PATH = "assets/textures/Dodecahedron.png";
+    return bindingDescription;
+}
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
+std::array<VkVertexInputAttributeDescription, 3> Vertex::getAttributeDescriptions() {
+    std::array<VkVertexInputAttributeDescription, 3> attributeDestriptions{};
+    attributeDestriptions[0].binding = 0;
+    attributeDestriptions[0].location = 0;
+    attributeDestriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDestriptions[0].offset = offsetof(Vertex, pos);
 
-const std::vector<const char*> validationLayers = {
-        "VK_LAYER_KHRONOS_validation"
-};
+    attributeDestriptions[1].binding = 0;
+    attributeDestriptions[1].location = 1;
+    attributeDestriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDestriptions[1].offset = offsetof(Vertex, color);
 
-const std::vector<const char*> deviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
+    attributeDestriptions[2].binding = 0;
+    attributeDestriptions[2].location = 2;
+    attributeDestriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDestriptions[2].offset = offsetof(Vertex, texCoord);
 
-#ifdef _DEBUG
-    const bool enableValidationLayers = false;
-#else
-    const bool enableValidationLayers = true;
-#endif
+    return attributeDestriptions;
+}
 
-struct QueueFamilyIndices {
-    std::optional<uint32_t> graphicsFamily;
-    std::optional<uint32_t> presentFamily;
+bool Vertex::operator==(const Vertex &other) const {
+    return pos == other.pos && color == other.color && texCoord == other.texCoord;
+}
 
-    bool isComplete() {
-        return graphicsFamily.has_value() && presentFamily.has_value();
-    }
-};
-
-struct SwapChainSupportDetails {
-    VkSurfaceCapabilitiesKHR capabilities;
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR> presentModes;
-};
-
-struct Vertex {
-    glm::vec3 pos;
-    glm::vec3 color;
-    glm::vec2 texCoord;
-
-    static VkVertexInputBindingDescription getBindingDescription() {
-        VkVertexInputBindingDescription bindingDescription{};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(Vertex);
-        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-        return bindingDescription;
-    }
-
-    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
-        std::array<VkVertexInputAttributeDescription, 3> attributeDestriptions{};
-        attributeDestriptions[0].binding = 0;
-        attributeDestriptions[0].location = 0;
-        attributeDestriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDestriptions[0].offset = offsetof(Vertex, pos);
-
-        attributeDestriptions[1].binding = 0;
-        attributeDestriptions[1].location = 1;
-        attributeDestriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDestriptions[1].offset = offsetof(Vertex, color);
-
-        attributeDestriptions[2].binding = 0;
-        attributeDestriptions[2].location = 2;
-        attributeDestriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDestriptions[2].offset = offsetof(Vertex, texCoord);
-
-        return attributeDestriptions;
-    }
-
-    bool operator==(const Vertex& other) const {
-        return pos == other.pos && color == other.color && texCoord == other.texCoord;
-    }
-};
 
 namespace std  {
     template<> struct hash<Vertex> {
@@ -113,11 +54,6 @@ namespace std  {
     };
 }
 
-struct UniformBufferObject {
-    alignas(16) glm::mat4 model;
-    alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 proj;
-};
 
 static std::vector<char> readFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
