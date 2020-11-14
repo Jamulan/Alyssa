@@ -7,16 +7,21 @@
 
 
 #include <vulkan/vulkan.h>
-#include "Util.h"
+#include "Application.h"
 
 class Material {
 public:
 
 private:
+    Settings settings;
+    VkDescriptorSetLayout descriptorSetLayout;
+    VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;
+    Application *application;
 
+    void createDescriptorSetLayout();
     void createGraphicsPipeline();
 };
 

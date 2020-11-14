@@ -52,6 +52,7 @@ private:
     VkDevice device;
     VkQueue graphicsQueue; // may need to be expanded to a vector
     VkQueue presentQueue;
+    VkCommandPool commandPool;
 
     Settings settings;
 
@@ -59,6 +60,7 @@ private:
     void createInstance();
     void pickPhysicalDevice(VkSurfaceKHR *surface);
     void createLogicalDevice(VkSurfaceKHR *surface);
+    void createCommandPool(VkSurfaceKHR surface);
 
     void cleanupVulkan();
 
@@ -70,6 +72,12 @@ public:
     VkPhysicalDevice_T * getPhysicalDevice() const;
 
     VkDevice_T * getDevice() const;
+
+    const Settings &getSettings() const;
+
+    VkQueue_T *getGraphicsQueue() const;
+
+    VkCommandPool_T *getCommandPool() const;
 
 };
 

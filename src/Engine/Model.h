@@ -10,7 +10,6 @@
 #include <vector>
 #include <array>
 
-#include "Util.h"
 #include "Material.h"
 
 class Model {

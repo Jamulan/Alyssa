@@ -7,10 +7,15 @@
 #include <cstring>
 #include "Core.h"
 
+bool QueueFamilyIndices::isComplete() {
+    return graphicsFamily.has_value() && presentFamily.has_value();
+}
+
 void Core::initVulkan() {
     createInstance();
     pickPhysicalDevice(nullptr);
     createLogicalDevice(nullptr);
+    createCommandPool(nullptr);
 }
 
 void Core::createInstance() {
@@ -133,6 +138,20 @@ void Core::createLogicalDevice(VkSurfaceKHR *surface) {
     vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
     vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
+
+void Core::createCommandPool(VkSurfaceKHR surface) {
+    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(surface);
+
+    VkCommandPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+    poolInfo.flags = 0; // optional
+
+    if(vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create command pool!");
+    }
+}
+
 
 QueueFamilyIndices Core::findQueueFamilies(VkSurfaceKHR surface) {
     QueueFamilyIndices indices;
@@ -276,5 +295,17 @@ VkPhysicalDevice_T * Core::getPhysicalDevice() const {
 
 VkDevice_T * Core::getDevice() const {
     return device;
+}
+
+const Settings &Core::getSettings() const {
+    return settings;
+}
+
+VkQueue_T *Core::getGraphicsQueue() const {
+    return graphicsQueue;
+}
+
+VkCommandPool_T *Core::getCommandPool() const {
+    return commandPool;
 }
 
