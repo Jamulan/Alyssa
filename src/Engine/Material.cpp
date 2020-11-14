@@ -5,31 +5,8 @@
 #include <stdexcept>
 #include "Material.h"
 
-void Material::createDescriptorSetLayout() {
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.pImmutableSamplers = nullptr; // optional
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-    samplerLayoutBinding.binding = 1;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding.pImmutableSamplers = nullptr;
-    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-    std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    layoutInfo.pBindings = bindings.data();
-
-    if(vkCreateDescriptorSetLayout(application->getCore()->getDevice(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor set layout!");
-    }
+Material::Material(Application *application, Settings settings) : application(application), settings(settings) {
+    createGraphicsPipeline();
 }
 
 void Material::createGraphicsPipeline() {
@@ -143,7 +120,7 @@ void Material::createGraphicsPipeline() {
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = reinterpret_cast<VkDescriptorSetLayout const *>(application->getDescriptorSetLayout());
     pipelineLayoutInfo.pushConstantRangeCount = 0; // optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // optional
 
@@ -176,3 +153,20 @@ void Material::createGraphicsPipeline() {
     vkDestroyShaderModule(application->getCore()->getDevice(), vertShaderModule, nullptr);
     vkDestroyShaderModule(application->getCore()->getDevice(), fragShaderModule, nullptr);
 }
+
+const Settings &Material::getSettings() const {
+    return settings;
+}
+
+Application *Material::getApplication() const {
+    return application;
+}
+
+VkPipeline_T *Material::getGraphicsPipeline() const {
+    return graphicsPipeline;
+}
+
+VkPipelineLayout_T *Material::getPipelineLayout() const {
+    return pipelineLayout;
+}
+

@@ -11,18 +11,26 @@
 
 class Material {
 public:
+    Material(Application *application, Settings settings);
+
+    Application *getApplication() const;
+
+    const Settings &getSettings() const;
 
 private:
     Settings settings;
-    VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;
     Application *application;
 
-    void createDescriptorSetLayout();
     void createGraphicsPipeline();
+
+public:
+    VkPipeline_T *getGraphicsPipeline() const;
+
+    VkPipelineLayout_T *getPipelineLayout() const;
 };
 
 

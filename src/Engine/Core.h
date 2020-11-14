@@ -23,13 +23,6 @@ struct SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> presentModes;
 };
 
-struct Settings { // the current state of user defined settings
-    VkSampleCountFlagBits msaaSamples;
-    VkBool32 Anisotropy;
-    VkBool32 sampleRateShading;
-    VkPolygonMode polygonMode;
-};
-
 class Core {
 public:
     const std::vector<const char*> validationLayers = {
