@@ -9,8 +9,8 @@
 
 void Core::initVulkan() {
     createInstance();
-    pickPhysicalDevice();
-    createLogicalDevice();
+    pickPhysicalDevice(nullptr);
+    createLogicalDevice(nullptr);
 }
 
 void Core::createInstance() {
@@ -63,7 +63,7 @@ void Core::createInstance() {
     }
 }
 
-void Core::pickPhysicalDevice() {
+void Core::pickPhysicalDevice(VkSurfaceKHR *surface) {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
@@ -88,7 +88,7 @@ void Core::pickPhysicalDevice() {
     }
 }
 
-void Core::createLogicalDevice() {
+void Core::createLogicalDevice(VkSurfaceKHR *surface) {
     QueueFamilyIndices indices = findQueueFamilies(*surface);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;

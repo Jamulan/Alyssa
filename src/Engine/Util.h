@@ -23,7 +23,6 @@ struct Vertex {
     bool operator==(const Vertex& other) const;
 };
 
-
 static std::vector<char> readFile(const std::string& filename);
 static VkShaderModule createShaderModule(const std::string& filename);
 

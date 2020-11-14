@@ -4,7 +4,6 @@
 
 #include <cstring>
 #include <fstream>
-#include <GLFW/glfw3.h>
 #include "Util.h"
 
 // TODO if only used by a single class add it to that class

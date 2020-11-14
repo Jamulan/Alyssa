@@ -17,6 +17,12 @@ struct QueueFamilyIndices {
     bool isComplete();
 };
 
+struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+};
+
 struct Settings { // the current state of user defined settings
     VkSampleCountFlagBits msaaSamples;
     VkBool32 Anisotropy;
@@ -46,14 +52,13 @@ private:
     VkDevice device;
     VkQueue graphicsQueue; // may need to be expanded to a vector
     VkQueue presentQueue;
-    VkSurfaceKHR* surface; // obtain from application somehow
 
     Settings settings;
 
     void initVulkan();
     void createInstance();
-    void pickPhysicalDevice();
-    void createLogicalDevice();
+    void pickPhysicalDevice(VkSurfaceKHR *surface);
+    void createLogicalDevice(VkSurfaceKHR *surface);
 
     void cleanupVulkan();
 
