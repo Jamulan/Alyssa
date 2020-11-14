@@ -12,10 +12,25 @@
 #include "Util.h"
 
 
+struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+};
+
+bool QueueFamilyIndices::isComplete() {
+    return graphicsFamily.has_value() && presentFamily.has_value();
+}
+
+
 class Application {
 public:
     void run();
     void init(Core *core);
+
+    VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
 private:
     char* appName;

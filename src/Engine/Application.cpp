@@ -6,7 +6,6 @@
 
 #include <stdexcept>
 #include "Application.h"
-#include "Core.h"
 
 void Application::run() {
 
@@ -32,11 +31,11 @@ void Application::createSurface(Core *core) {
 }
 
 void Application::createSwapChain(Core *core) {
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(core->getPhysicalDevice(), surface);
+    SwapChainSupportDetails swapChainSupport = core->querySwapChainSupport(surface);
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-    VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities, window);
+    VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
     uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
     if(swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
@@ -54,7 +53,7 @@ void Application::createSwapChain(Core *core) {
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = findQueueFamilies(core->getPhysicalDevice(), surface);
+    QueueFamilyIndices indices = core->findQueueFamilies(surface);
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
     if(indices.graphicsFamily != indices.presentFamily) {
@@ -85,6 +84,44 @@ void Application::createSwapChain(Core *core) {
 
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
+}
+
+VkPresentModeKHR Application::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes) {
+    for(const auto& availablePresentMode : availablePresentModes) {
+        if(availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) { // uses a queue to put images on the screen, when queue is full images are overwritten
+            return availablePresentMode;
+        }
+    }
+
+    return VK_PRESENT_MODE_FIFO_KHR; // uses a queue to put images on the screen, when the queue is full application is blocked
+}
+
+VkSurfaceFormatKHR Application::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
+    for (const auto& availableFormat : availableFormats) {
+        if(availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+            return availableFormat;
+        }
+    }
+    return availableFormats[0]; // TODO in the future rank available formats
+}
+
+VkExtent2D Application::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) {
+    if(capabilities.currentExtent.width != UINT32_MAX) {
+        return capabilities.currentExtent;
+    } else {
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+
+        VkExtent2D actualExtent = {
+                static_cast<uint32_t>(width),
+                static_cast<uint32_t>(height)
+        };
+
+        actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+        actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+
+        return actualExtent;
+    }
 }
 
 

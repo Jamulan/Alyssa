@@ -11,6 +11,12 @@
 #include "Util.h"
 
 
+struct QueueFamilyIndices {
+    std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
+    bool isComplete();
+};
+
 struct Settings { // the current state of user defined settings
     VkSampleCountFlagBits msaaSamples;
     VkBool32 Anisotropy;
@@ -26,6 +32,12 @@ public:
     const std::vector<const char*> deviceExtensions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
+
+    bool isDeviceSuitable(VkSurfaceKHR surface);
+    QueueFamilyIndices findQueueFamilies(VkSurfaceKHR surface);
+    VkSampleCountFlagBits getMaxUsableSampleCount();
+    bool checkDeviceExtensionSupport();
+    SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface);
 
 private:
     const bool enableValidationLayers = true;
@@ -44,6 +56,8 @@ private:
     void createLogicalDevice();
 
     void cleanupVulkan();
+
+    bool checkValidationLayerSupport();
 
 public:
     VkInstance_T * getInstance() const;
