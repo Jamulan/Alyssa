@@ -87,9 +87,10 @@ void Application::drawFrame() {
 }
 
 void Application::updateUniformBuffers(uint32_t currentImage) {
+    float time = std::chrono::duration<float, std::chrono::milliseconds::period>(std::chrono::high_resolution_clock::now() - startTime).count();
     for(ModelInfo *info : modelInfos) {
         UniformBufferObject ubo{};
-        ubo.model = info->getMat4();
+        ubo.model = info->update(time) * info->getMat4();
         ubo.view = glm::lookAt(glm::vec3(2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.0f, 10.0f);
         ubo.proj[1][1] *= -1;

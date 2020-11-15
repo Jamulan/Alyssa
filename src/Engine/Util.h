@@ -14,6 +14,7 @@
 #include <string>
 #include <array>
 #include <stb_image.h>
+#include <functional>
 
 #define MAX_FRAMES_IN_FLIGHT 3
 
@@ -36,6 +37,8 @@ struct ModelInfo { // PositionRotationScale needs better name
     glm::vec3 rot; // TODO convert to quaternions
     float angle;
     glm::vec3 sca;
+
+    std::function<glm::mat4 (float)> update; // the float is time since start in MS
 
     std::vector<VkCommandBuffer> *commandBuffers;
     std::vector<VkDeviceMemory> *uniformBuffersMemory;
