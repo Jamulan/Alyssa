@@ -20,6 +20,7 @@ int main() {
             .sampleRateShading = VK_FALSE,
             .polygonMode = VK_POLYGON_MODE_FILL,
             .maxMipLevels = 3,
+            .minFrametime = 5.0f
     };
     Core core = Core(window, settings);
     Application app = Application(&core, window);

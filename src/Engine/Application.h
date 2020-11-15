@@ -9,7 +9,7 @@
 #include <vector>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Core.h"
-
+#include <chrono>
 
 class Application {
 public:
@@ -51,6 +51,9 @@ private:
 
     std::vector<ModelInfo*> modelInfos;
     size_t currentFrame;
+
+    float lastTime;
+    float minFrametime;
 
     void drawFrame();
     void updateUniformBuffers(uint32_t currentImage);

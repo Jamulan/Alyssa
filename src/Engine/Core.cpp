@@ -63,7 +63,7 @@ void Core::createInstance() {
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-    if(enableValidationLayers && extensionCount != 0) { // only print info if validation layers are enabled
+    if(enableValidationLayers && extensionCount > 0) { // only print info if validation layers are enabled
         printf("available extensions:\n");
         for(const auto& extension : extensions) {
             printf("\t%s\n", extension.extensionName);

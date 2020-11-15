@@ -50,6 +50,7 @@ struct Settings { // the current state of user defined settings
     VkBool32 sampleRateShading;
     VkPolygonMode polygonMode;
     uint32_t maxMipLevels;
+    float minFrametime;
 };
 
 struct UniformBufferObject {

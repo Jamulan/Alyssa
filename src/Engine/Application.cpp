@@ -9,7 +9,10 @@
 #include "Application.h"
 #include "Model.h"
 
+static auto startTime = std::chrono::high_resolution_clock::now();
+
 void Application::run() {
+    lastTime = std::chrono::duration<float, std::chrono::milliseconds::period>(std::chrono::high_resolution_clock::now() - startTime).count();
     while(!glfwWindowShouldClose(core->getWindow())) {
         glfwPollEvents();
 
@@ -73,14 +76,19 @@ void Application::drawFrame() {
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr; // optional;
 
+    float time = std::chrono::duration<float, std::chrono::milliseconds::period>(std::chrono::high_resolution_clock::now() - startTime).count();
+    while(time - lastTime < minFrametime) {
+        time = std::chrono::duration<float, std::chrono::milliseconds::period>(std::chrono::high_resolution_clock::now() - startTime).count();
+    }
     result = vkQueuePresentKHR(core->getPresentQueue(), &presentInfo);
+    lastTime = time;
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 void Application::updateUniformBuffers(uint32_t currentImage) {
     for(ModelInfo *info : modelInfos) {
-        UniformBufferObject ubo{}; //TODO don't hardcode
+        UniformBufferObject ubo{};
         ubo.model = info->getMat4();
         ubo.view = glm::lookAt(glm::vec3(2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.0f, 10.0f);
@@ -107,6 +115,8 @@ Application::Application(Core *core, GLFWwindow *window) : core(core) {
     createDescriptorSetLayout();
     createDescriptorPool();
     createSyncObjects();
+
+    minFrametime = core->getSettings().minFrametime;
 }
 
 void Application::createSwapChain() {
