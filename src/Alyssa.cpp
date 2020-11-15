@@ -25,10 +25,10 @@ int main() {
     Application app = Application(&core, window);
     Material material = Material(&app, settings, std::string(), std::string());
     ModelInfo modelInfo = {
-            .pos = glm::vec3(0.0f),
-            .rot = glm::vec3(0.0f),
+            .pos = glm::vec3(0.0f, 0.0f, -0.5f),
+            .rot = glm::vec3(0.0f, 0.0f, 1.0f),
             .angle = 0.0f,
-            .sca = glm::vec3(1.0f)
+            .sca = glm::vec3(0.5f)
     };
     Model model = Model(&material, "assets/textures/Dodecahedron.png", "assets/models/Dodecahedron.obj", modelInfo);
     app.run();

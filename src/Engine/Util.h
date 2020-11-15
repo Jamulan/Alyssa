@@ -15,7 +15,7 @@
 #include <array>
 #include <stb_image.h>
 
-#define MAX_FRAMES_IN_FLIGHT 1
+#define MAX_FRAMES_IN_FLIGHT 3
 
 struct Vertex {
     glm::vec3 pos;
