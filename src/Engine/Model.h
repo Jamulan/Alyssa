@@ -6,7 +6,6 @@
 #define ALYSSA_MODEL_H
 
 #include <vulkan/vulkan.h>
-#include <glm/glm.hpp>
 #include <vector>
 #include <array>
 #include <tiny_obj_loader.h>
@@ -16,7 +15,9 @@
 
 class Model {
 public:
-    Model(Material *material, const std::string &textureFilename, const std::string &modelFilename);
+    Model(Material *material, const std::string &textureFilename, const std::string &modelFilename,
+          ModelInfo info);
+
 
 private:
     Material *material;
@@ -37,6 +38,8 @@ private:
     uint32_t mipLevels;
     VkSampler textureSampler;
     std::vector<VkDescriptorSet> descriptorSets;
+
+    ModelInfo modelInfo;
 
     void createTextureImage();
     void createTextureImageView();

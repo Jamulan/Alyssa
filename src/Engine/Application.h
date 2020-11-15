@@ -7,15 +7,16 @@
 
 #include <GLFW/glfw3.h>
 #include <vector>
+#include <glm/gtc/matrix_transform.hpp>
 #include "Core.h"
-
 
 
 class Application {
 public:
     void run();
 
-    Application(Core *core);
+    Application(Core *core, GLFWwindow *window);
+    void registerModel(ModelInfo *info);
 
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -26,8 +27,6 @@ private:
     uint32_t appVer;
     uint32_t width;
     uint32_t height;
-    VkSurfaceKHR surface;
-    GLFWwindow* window; // one window = one Application, if I need another window make a separate Application
     Core *core;
     VkSwapchainKHR swapChain;
     std::vector<VkImage> swapChainImages;
@@ -45,8 +44,17 @@ private:
     VkDescriptorSetLayout descriptorSetLayout;
     VkDescriptorPool descriptorPool;
 
-    void initWindow();
-    void createSurface();
+    std::vector<VkSemaphore> imageAvailableSemaphores;
+    std::vector<VkSemaphore> renderFinishedSemaphores;
+    std::vector<VkFence> inFlightFences;
+    std::vector<VkFence> imagesInFlight;
+
+    std::vector<ModelInfo*> modelInfos;
+    size_t currentFrame;
+
+    void drawFrame();
+    void updateUniformBuffers(uint32_t currentImage);
+
     void createImageViews();
     void createSwapChain();
     void createRenderPass();
@@ -55,6 +63,8 @@ private:
     void createFrameBuffers();
     void createDescriptorSetLayout();
     void createDescriptorPool();
+    void createSyncObjects();
+
 
 
     void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
@@ -66,10 +76,6 @@ public:
 
     uint32_t getAppVer() const;
 
-    GLFWwindow *getWindow() const;
-
-    VkSurfaceKHR_T *getSurface() const;
-
     std::vector<VkImage> &getSwapChainImages();
 
     const VkExtent2D &getSwapChainExtent() const;
@@ -80,7 +86,7 @@ public:
 
     VkRenderPass_T *getRenderPass() const;
 
-    VkDescriptorSetLayout_T *getDescriptorSetLayout() const;
+    VkDescriptorSetLayout const * getDescriptorSetLayout() const;
 
     VkDescriptorPool_T *getDescriptorPool();
 

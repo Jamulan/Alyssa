@@ -11,11 +11,14 @@ bool QueueFamilyIndices::isComplete() {
     return graphicsFamily.has_value() && presentFamily.has_value();
 }
 
-void Core::initVulkan() {
+Core::Core(GLFWwindow *window, Settings settings) : window(window), settings(settings) {
     createInstance();
-    pickPhysicalDevice(nullptr);
-    createLogicalDevice(nullptr);
-    createCommandPool(nullptr);
+    if(glfwCreateWindowSurface(instance, this->window, nullptr, &surface) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create window surface!");
+    }
+    pickPhysicalDevice();
+    createLogicalDevice();
+    createCommandPool();
 }
 
 void Core::createInstance() {
@@ -68,7 +71,7 @@ void Core::createInstance() {
     }
 }
 
-void Core::pickPhysicalDevice(VkSurfaceKHR *surface) {
+void Core::pickPhysicalDevice() {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
@@ -81,9 +84,9 @@ void Core::pickPhysicalDevice(VkSurfaceKHR *surface) {
 
     // TODO score available devices and pick the highest scored device
     for(const auto& tmpDevice : devices) { // for now this just picks the first suitable VkPhysicalDevice
-        if(isDeviceSuitable(*surface)) {
-            physicalDevice = tmpDevice;
-            settings.msaaSamples = getMaxUsableSampleCount();
+        physicalDevice = tmpDevice;
+        if(isDeviceSuitable(surface)) {
+//            settings.msaaSamples = getMaxUsableSampleCount(); TODO
             break;
         }
     }
@@ -93,8 +96,8 @@ void Core::pickPhysicalDevice(VkSurfaceKHR *surface) {
     }
 }
 
-void Core::createLogicalDevice(VkSurfaceKHR *surface) {
-    QueueFamilyIndices indices = findQueueFamilies(*surface);
+void Core::createLogicalDevice() {
+    QueueFamilyIndices indices = findQueueFamilies(surface);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -139,7 +142,7 @@ void Core::createLogicalDevice(VkSurfaceKHR *surface) {
     vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
 
-void Core::createCommandPool(VkSurfaceKHR surface) {
+void Core::createCommandPool() {
     QueueFamilyIndices queueFamilyIndices = findQueueFamilies(surface);
 
     VkCommandPoolCreateInfo poolInfo{};
@@ -293,7 +296,7 @@ VkPhysicalDevice_T * Core::getPhysicalDevice() const {
     return physicalDevice;
 }
 
-VkDevice_T * Core::getDevice() const {
+VkDevice_T * Core::getDevice() {
     return device;
 }
 
@@ -307,5 +310,17 @@ VkQueue_T *Core::getGraphicsQueue() const {
 
 VkCommandPool_T *Core::getCommandPool() const {
     return commandPool;
+}
+
+VkQueue_T * Core::getPresentQueue() const {
+    return presentQueue;
+}
+
+GLFWwindow *Core::getWindow() const {
+    return window;
+}
+
+VkSurfaceKHR_T * Core::getSurface() const {
+    return surface;
 }
 

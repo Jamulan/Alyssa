@@ -5,8 +5,25 @@
 #include <stdexcept>
 #include "Material.h"
 
-Material::Material(Application *application, Settings settings) : application(application), settings(settings) {
+Material::Material(Application *application, Settings settings, std::string vertShaderFilename,
+                   std::string fragShaderFilename) : application(application), settings(settings) {
+    vertShaderModule = createShaderModule(readFile("assets/shaders/vert.spv"));
+    fragShaderModule = createShaderModule(readFile("assets/shaders/frag.spv"));
     createGraphicsPipeline();
+}
+
+VkShaderModule Material::createShaderModule(const std::vector<char>& code) {
+    VkShaderModuleCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    createInfo.codeSize = code.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+    VkShaderModule shaderModule;
+    if(vkCreateShaderModule(application->getCore()->getDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create shader module!");
+    }
+
+    return shaderModule;
 }
 
 void Material::createGraphicsPipeline() {
@@ -120,7 +137,7 @@ void Material::createGraphicsPipeline() {
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = reinterpret_cast<VkDescriptorSetLayout const *>(application->getDescriptorSetLayout());
+    pipelineLayoutInfo.pSetLayouts = application->getDescriptorSetLayout();
     pipelineLayoutInfo.pushConstantRangeCount = 0; // optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // optional
 

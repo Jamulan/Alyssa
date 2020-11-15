@@ -25,6 +25,8 @@ struct SwapChainSupportDetails {
 
 class Core {
 public:
+    Core(GLFWwindow *window, Settings settings);
+
     const std::vector<const char*> validationLayers = {
             "VK_LAYER_KHRONOS_validation"
     };
@@ -46,14 +48,16 @@ private:
     VkQueue graphicsQueue; // may need to be expanded to a vector
     VkQueue presentQueue;
     VkCommandPool commandPool;
+    GLFWwindow *window;
+    VkSurfaceKHR surface;
 
     Settings settings;
 
     void initVulkan();
     void createInstance();
-    void pickPhysicalDevice(VkSurfaceKHR *surface);
-    void createLogicalDevice(VkSurfaceKHR *surface);
-    void createCommandPool(VkSurfaceKHR surface);
+    void pickPhysicalDevice();
+    void createLogicalDevice();
+    void createCommandPool();
 
     void cleanupVulkan();
 
@@ -64,13 +68,19 @@ public:
 
     VkPhysicalDevice_T * getPhysicalDevice() const;
 
-    VkDevice_T * getDevice() const;
+    VkDevice_T * getDevice();
 
     const Settings &getSettings() const;
 
     VkQueue_T *getGraphicsQueue() const;
 
+    VkQueue_T * getPresentQueue() const;
+
     VkCommandPool_T *getCommandPool() const;
+
+    GLFWwindow *getWindow() const;
+
+    VkSurfaceKHR_T * getSurface() const;
 
 };
 

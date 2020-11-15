@@ -15,6 +15,8 @@
 #include <array>
 #include <stb_image.h>
 
+#define MAX_FRAMES_IN_FLIGHT 1
+
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 color;
@@ -28,6 +30,18 @@ namespace std {
         size_t operator()(Vertex const &vertex) const;
     };
 }
+
+struct ModelInfo { // PositionRotationScale needs better name
+    glm::vec3 pos;
+    glm::vec3 rot; // TODO convert to quaternions
+    float angle;
+    glm::vec3 sca;
+
+    std::vector<VkCommandBuffer> *commandBuffers;
+    std::vector<VkDeviceMemory> *uniformBuffersMemory;
+
+    glm::mat4 getMat4();
+};
 
 struct Settings { // the current state of user defined settings
     VkSampleCountFlagBits msaaSamples;

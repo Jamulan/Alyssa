@@ -3,10 +3,11 @@
 //
 
 #define STB_IMAGE_IMPLEMENTATION
+#define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_RADIANS
 
 #include <cstring>
 #include <fstream>
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 #include "Util.h"
 
@@ -49,6 +50,10 @@ namespace std  {
                  (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
                (hash<glm::vec2>()(vertex.texCoord) << 1);
     }
+}
+
+glm::mat4 ModelInfo::getMat4() {
+    return glm::mat4(1.0f);
 }
 
 std::vector<char> readFile(const std::string &filename) {

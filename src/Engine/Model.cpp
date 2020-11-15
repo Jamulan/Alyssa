@@ -10,9 +10,9 @@
 
 #include "Model.h"
 
-
-Model::Model(Material *material, const std::string &textureFilename, const std::string &modelFilename) : material(
-        material), textureFilename(textureFilename), modelFilename(modelFilename) {
+Model::Model(Material *material, const std::string &textureFilename, const std::string &modelFilename,
+             ModelInfo info) : material(
+        material), textureFilename(textureFilename), modelFilename(modelFilename), modelInfo(info) {
     createTextureImage();
     createTextureImageView();
     createTextureSampler();
@@ -22,6 +22,11 @@ Model::Model(Material *material, const std::string &textureFilename, const std::
     createUniformBuffers();
     createDescriptorSets();
     createCommandBuffers();
+
+    modelInfo.commandBuffers = &commandBuffers;
+    modelInfo.uniformBuffersMemory = &uniformBuffersMemory;
+
+    material->getApplication()->registerModel(&modelInfo);
 }
 
 void Model::createTextureImage() {
@@ -201,7 +206,7 @@ void Model::createUniformBuffers() {
 }
 
 void Model::createDescriptorSets() {
-    std::vector<VkDescriptorSetLayout> layouts(material->getApplication()->getSwapChainImages().size(), material->getApplication()->getDescriptorSetLayout());
+    std::vector<VkDescriptorSetLayout> layouts(material->getApplication()->getSwapChainImages().size(), *(material->getApplication()->getDescriptorSetLayout()));
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = material->getApplication()->getDescriptorPool();

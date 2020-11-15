@@ -5,15 +5,99 @@
 #define GLFW_INCLUDE_VULKAN
 
 #include <stdexcept>
+#include <cstring>
 #include "Application.h"
+#include "Model.h"
 
 void Application::run() {
+    while(!glfwWindowShouldClose(core->getWindow())) {
+        glfwPollEvents();
 
+        drawFrame();
+    }
 }
 
-Application::Application(Core *core) : core(core) {
-    initWindow();
-    createSurface();
+void Application::drawFrame() {
+    vkWaitForFences(core->getDevice(), 1, &inFlightFences[currentFrame], VK_TRUE, UINT32_MAX);
+
+    uint32_t imageIndex;
+    VkResult result = vkAcquireNextImageKHR(core->getDevice(), swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+    if(result != VK_SUCCESS) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+
+    if(imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
+        vkWaitForFences(core->getDevice(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+    }
+
+    imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+
+    updateUniformBuffers(imageIndex);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+
+    std::vector<VkCommandBuffer> buffersToSubmit;
+    for(ModelInfo *info : modelInfos) {
+        buffersToSubmit.push_back((*info->commandBuffers)[imageIndex]);
+    }
+
+    submitInfo.commandBufferCount = buffersToSubmit.size();
+    submitInfo.pCommandBuffers = buffersToSubmit.data();
+
+    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    vkResetFences(core->getDevice(), 1, &inFlightFences[currentFrame]);
+
+    if(vkQueueSubmit(core->getGraphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }
+
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = {swapChain};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pResults = nullptr; // optional;
+
+    result = vkQueuePresentKHR(core->getPresentQueue(), &presentInfo);
+
+    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void Application::updateUniformBuffers(uint32_t currentImage) {
+    for(ModelInfo *info : modelInfos) {
+        UniformBufferObject ubo{}; //TODO don't hardcode
+        ubo.model = info->getMat4();
+        ubo.view = glm::lookAt(glm::vec3(2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.0f, 10.0f);
+        ubo.proj[1][1] *= -1;
+
+        void* data;
+        vkMapMemory(core->getDevice(), (*info->uniformBuffersMemory)[currentImage], 0, sizeof(ubo), 0, &data);
+        memcpy(data, &ubo, sizeof(ubo));
+        vkUnmapMemory(core->getDevice(), (*info->uniformBuffersMemory)[currentImage]);
+    }
+}
+
+void Application::registerModel(ModelInfo *info) {
+    modelInfos.push_back(info);
+}
+
+Application::Application(Core *core, GLFWwindow *window) : core(core) {
     createSwapChain();
     createImageViews();
     createRenderPass();
@@ -22,23 +106,11 @@ Application::Application(Core *core) : core(core) {
     createFrameBuffers();
     createDescriptorSetLayout();
     createDescriptorPool();
-}
-
-void Application::initWindow() {
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    window = glfwCreateWindow(width, height, appName, nullptr, nullptr);
-}
-
-void Application::createSurface() {
-    if(glfwCreateWindowSurface(core->getInstance(), window, nullptr, &surface) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create window surface!");
-    }
+    createSyncObjects();
 }
 
 void Application::createSwapChain() {
-    SwapChainSupportDetails swapChainSupport = core->querySwapChainSupport(surface);
+    SwapChainSupportDetails swapChainSupport = core->querySwapChainSupport(core->getSurface());
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -51,7 +123,7 @@ void Application::createSwapChain() {
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = surface;
+    createInfo.surface = core->getSurface();
 
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
@@ -60,7 +132,7 @@ void Application::createSwapChain() {
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = core->findQueueFamilies(surface);
+    QueueFamilyIndices indices = core->findQueueFamilies(core->getSurface());
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
     if(indices.graphicsFamily != indices.presentFamily) {
@@ -298,6 +370,28 @@ void Application::createDescriptorPool() {
     }
 }
 
+void Application::createSyncObjects() {
+    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    imagesInFlight.resize(swapChainImages.size(), VK_NULL_HANDLE);
+
+    VkSemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        if (vkCreateSemaphore(core->getDevice(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(core->getDevice(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(core->getDevice(), &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create sync object(s)");
+        }
+    }
+}
+
 
 VkFormat Application::findDepthFormat() {
     return findSupportedFormat(
@@ -345,7 +439,7 @@ VkExtent2D Application::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabil
         return capabilities.currentExtent;
     } else {
         int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
+        glfwGetFramebufferSize(core->getWindow(), &width, &height);
 
         VkExtent2D actualExtent = {
                 static_cast<uint32_t>(width),
@@ -368,14 +462,6 @@ uint32_t Application::getAppVer() const {
     return appVer;
 }
 
-GLFWwindow *Application::getWindow() const {
-    return window;
-}
-
-VkSurfaceKHR_T *Application::getSurface() const {
-    return surface;
-}
-
 const VkExtent2D &Application::getSwapChainExtent() const {
     return swapChainExtent;
 }
@@ -396,8 +482,8 @@ std::vector<VkImage> &Application::getSwapChainImages() {
     return swapChainImages;
 }
 
-VkDescriptorSetLayout_T *Application::getDescriptorSetLayout() const {
-    return descriptorSetLayout;
+VkDescriptorSetLayout const * Application::getDescriptorSetLayout() const {
+    return &descriptorSetLayout;
 }
 
 VkDescriptorPool_T *Application::getDescriptorPool() {

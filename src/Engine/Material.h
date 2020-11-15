@@ -11,7 +11,8 @@
 
 class Material {
 public:
-    Material(Application *application, Settings settings);
+    Material(Application *application, Settings settings, std::string vertShaderFilename,
+             std::string fragShaderFilename);
 
     Application *getApplication() const;
 
@@ -25,6 +26,7 @@ private:
     VkShaderModule fragShaderModule;
     Application *application;
 
+    VkShaderModule createShaderModule(const std::vector<char>& code);
     void createGraphicsPipeline();
 
 public:
