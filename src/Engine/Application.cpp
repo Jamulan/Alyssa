@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <cstring>
 #include "Application.h"
-#include "Model.h"
 
 static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -113,7 +112,6 @@ Application::Application(Core *core, GLFWwindow *window) : core(core) {
     createDepthResources();
     createFrameBuffers();
     createDescriptorSetLayout();
-    createDescriptorPool();
     createSyncObjects();
 
     minFrametime = core->getSettings().minFrametime;
@@ -362,24 +360,6 @@ void Application::createDescriptorSetLayout() {
     }
 }
 
-void Application::createDescriptorPool() {
-    std::array<VkDescriptorPoolSize, 2> poolSizes{};
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-
-    VkDescriptorPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-    poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
-
-    if(vkCreateDescriptorPool(core->getDevice(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor pool!");
-    }
-}
-
 void Application::createSyncObjects() {
     imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -494,10 +474,6 @@ std::vector<VkImage> &Application::getSwapChainImages() {
 
 VkDescriptorSetLayout const * Application::getDescriptorSetLayout() const {
     return &descriptorSetLayout;
-}
-
-VkDescriptorPool_T *Application::getDescriptorPool() {
-    return descriptorPool;
 }
 
 const std::vector<VkFramebuffer> &Application::getSwapChainFramebuffers() const {

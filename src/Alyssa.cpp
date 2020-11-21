@@ -47,7 +47,7 @@ int main() {
     };
     Core core = Core(window, settings);
     Application app = Application(&core, window);
-    Material material = Material(&app, settings, std::string(), std::string());
+    Material material = Material(&app, settings, "assets/shaders/vert.spv", "assets/shaders/frag.spv");
     LocOri stuff = {
             .pos = glm::vec3(0.0f, 0.0f, -0.5f),
             .rot = glm::vec3(0.0f, 0.0f, 1.0f),
@@ -58,6 +58,7 @@ int main() {
             .stuff = stuff
     };
     Model model = Model(&material, "assets/textures/Dodecahedron.png", "assets/models/Dodecahedron.obj", modelInfo);
+//    Model model0 = Model(&material, "assets/textures/tmpFloor.png", "assets/models/tmpFloor.obj", modelInfo);
     std::thread graphicsThread(&Application::run, &app);
 
     bool go = true;

@@ -38,6 +38,7 @@ private:
     VkImageView textureImageView;
     uint32_t mipLevels;
     VkSampler textureSampler;
+    VkDescriptorPool descriptorPool;
     std::vector<VkDescriptorSet> descriptorSets;
 
     ModelInfo modelInfo;
@@ -49,6 +50,7 @@ private:
     void createVertexBuffer();
     void createIndexBuffer();
     void createUniformBuffers();
+    void createDescriptorPool();
     void createDescriptorSets();
     void createCommandBuffers();
 };

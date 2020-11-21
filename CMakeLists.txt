@@ -20,5 +20,7 @@ add_executable(Alyssa src/Engine/Util.cpp src/Engine/Util.h src/Engine/Core.cpp 
 target_link_libraries(Alyssa glfw)
 target_link_libraries(Alyssa vulkan)
 target_link_libraries(Alyssa pthread)
+add_custom_command(TARGET Alyssa PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:Alyssa>/assets)
 
-file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})

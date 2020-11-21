@@ -42,7 +42,6 @@ private:
     VkExtent2D swapChainExtent;
     VkRenderPass renderPass;
     VkDescriptorSetLayout descriptorSetLayout;
-    VkDescriptorPool descriptorPool;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -65,7 +64,6 @@ private:
     void createDepthResources();
     void createFrameBuffers();
     void createDescriptorSetLayout();
-    void createDescriptorPool();
     void createSyncObjects();
 
 
@@ -90,8 +88,6 @@ public:
     VkRenderPass_T *getRenderPass() const;
 
     VkDescriptorSetLayout const * getDescriptorSetLayout() const;
-
-    VkDescriptorPool_T *getDescriptorPool();
 
     const std::vector<VkFramebuffer> &getSwapChainFramebuffers() const;
 

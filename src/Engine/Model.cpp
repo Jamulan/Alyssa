@@ -20,6 +20,7 @@ Model::Model(Material *material, const std::string &textureFilename, const std::
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
+    createDescriptorPool();
     createDescriptorSets();
     createCommandBuffers();
 
@@ -209,11 +210,31 @@ void Model::createUniformBuffers() {
     }
 }
 
+void Model::createDescriptorPool() {
+    auto size = material->getApplication()->getSwapChainImages().size();
+
+    std::array<VkDescriptorPoolSize, 2> poolSizes{};
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(size);
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(size);
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    poolInfo.pPoolSizes = poolSizes.data();
+    poolInfo.maxSets = static_cast<uint32_t>(size);
+
+    if(vkCreateDescriptorPool(material->getApplication()->getCore()->getDevice(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor pool!");
+    }
+}
+
 void Model::createDescriptorSets() {
     std::vector<VkDescriptorSetLayout> layouts(material->getApplication()->getSwapChainImages().size(), *(material->getApplication()->getDescriptorSetLayout()));
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = material->getApplication()->getDescriptorPool();
+    allocInfo.descriptorPool = descriptorPool;
     allocInfo.descriptorSetCount = static_cast<uint32_t>(material->getApplication()->getSwapChainImages().size());
     allocInfo.pSetLayouts = layouts.data();
 

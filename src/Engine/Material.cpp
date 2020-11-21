@@ -7,8 +7,8 @@
 
 Material::Material(Application *application, Settings settings, std::string vertShaderFilename,
                    std::string fragShaderFilename) : application(application), settings(settings) {
-    vertShaderModule = createShaderModule(readFile("assets/shaders/vert.spv"));
-    fragShaderModule = createShaderModule(readFile("assets/shaders/frag.spv"));
+    vertShaderModule = createShaderModule(readFile(vertShaderFilename));
+    fragShaderModule = createShaderModule(readFile(fragShaderFilename));
     createGraphicsPipeline();
 }
 
