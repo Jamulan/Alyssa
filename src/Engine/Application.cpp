@@ -12,6 +12,7 @@ static auto startTime = std::chrono::high_resolution_clock::now();
 
 void Application::run() {
     lastTime = std::chrono::duration<float, std::chrono::milliseconds::period>(std::chrono::high_resolution_clock::now() - startTime).count();
+    currentFrame = 0;
     while(!glfwWindowShouldClose(core->getWindow())) {
         glfwPollEvents();
 

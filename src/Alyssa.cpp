@@ -58,7 +58,16 @@ int main() {
             .stuff = stuff
     };
     Model model = Model(&material, "assets/textures/Dodecahedron.png", "assets/models/Dodecahedron.obj", modelInfo);
-//    Model model0 = Model(&material, "assets/textures/tmpFloor.png", "assets/models/tmpFloor.obj", modelInfo);
+    LocOri stuff0 = {
+            .pos = glm::vec3(0.0f, 0.0f, -2.0f),
+            .rot = glm::vec3(1.0f, 0.0f, 0.0f),
+            .angle = glm::radians(90.0f),
+            .sca = glm::vec3(0.5f)
+    };
+    ModelInfo modelInfo0 = {
+            .stuff = stuff0
+    };
+    Model model0 = Model(&material, "assets/textures/tmpFloor.png", "assets/models/tmpFloor.obj", modelInfo0);
     std::thread graphicsThread(&Application::run, &app);
 
     bool go = true;
