@@ -53,7 +53,7 @@ namespace std  {
 }
 
 glm::mat4 ModelInfo::getMat4() {
-    return glm::translate(glm::mat4(1.0f), pos) * glm::scale(glm::mat4(1.0f), sca) * glm::rotate(glm::mat4(1.0f), glm::radians(angle), rot);
+    return glm::translate(glm::mat4(1.0f), stuff.pos) * glm::scale(glm::mat4(1.0f), stuff.sca) * glm::rotate(glm::mat4(1.0f), glm::radians(stuff.angle), stuff.rot);
 }
 
 std::vector<char> readFile(const std::string &filename) {

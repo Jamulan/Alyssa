@@ -30,12 +30,15 @@ namespace std {
         size_t operator()(Vertex const &vertex) const;
     };
 }
-
-struct ModelInfo { // PositionRotationScale needs better name
+struct LocOri { // location and orientation
     glm::vec3 pos;
     glm::vec3 rot; // TODO convert to quaternions
     float angle;
     glm::vec3 sca;
+
+};
+struct ModelInfo { // PositionRotationScale needs better name
+    LocOri stuff;
 
     std::vector<VkCommandBuffer> *commandBuffers;
     std::vector<VkDeviceMemory> *uniformBuffersMemory;

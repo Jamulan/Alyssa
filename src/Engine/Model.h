@@ -18,6 +18,7 @@ public:
     Model(Material *material, const std::string &textureFilename, const std::string &modelFilename,
           ModelInfo info);
 
+    LocOri* getStuff();
 
 private:
     Material *material;

@@ -29,6 +29,10 @@ Model::Model(Material *material, const std::string &textureFilename, const std::
     material->getApplication()->registerModel(&modelInfo);
 }
 
+LocOri *Model::getStuff() {
+    return &modelInfo.stuff;
+}
+
 void Model::createTextureImage() {
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels = stbi_load(textureFilename.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
