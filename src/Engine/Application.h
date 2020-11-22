@@ -25,8 +25,9 @@ public:
 private:
     char* appName;
     uint32_t appVer;
-    uint32_t width;
-    uint32_t height;
+    float width;
+    float height;
+    bool viewportChanged;
     Core *core;
     VkSwapchainKHR swapChain;
     std::vector<VkImage> swapChainImages;
@@ -90,6 +91,9 @@ public:
     VkDescriptorSetLayout const * getDescriptorSetLayout() const;
 
     const std::vector<VkFramebuffer> &getSwapChainFramebuffers() const;
+
+    float * getWidth();
+    float * getHeight();
 
 };
 

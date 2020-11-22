@@ -117,6 +117,19 @@ Application::Application(Core *core, GLFWwindow *window) : core(core) {
     createSyncObjects();
 
     minFrametime = core->getSettings().minFrametime;
+    viewportChanged = false;
+    int w, h;
+    glfwGetWindowSize(window, &w, &h);
+    width = w;
+    height = h;
+}
+
+float * Application::getWidth() {
+    return &width;
+}
+
+float * Application::getHeight() {
+    return &height;
 }
 
 void Application::createSwapChain() {

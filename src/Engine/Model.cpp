@@ -315,8 +315,25 @@ void Model::createCommandBuffers() {
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
 
+        VkViewport viewport {
+            .x = 0.0f,
+            .y = 0.0f,
+            .width = *(material->getApplication()->getWidth()),
+            .height = *(material->getApplication()->getHeight()),
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f,
+        };
+
+        VkRect2D scissor{
+            .offset = {0, 0},
+            .extent = material->getApplication()->getSwapChainExtent(),
+        };
+
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, material->getGraphicsPipeline());
+
+        vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
+        vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
 
         VkBuffer vertexBuffers[] = {vertexBuffer};
         VkDeviceSize offsets[] = {0};
