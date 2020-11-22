@@ -18,6 +18,8 @@ public:
     Application(Core *core, GLFWwindow *window);
     void registerModel(ModelInfo *info);
 
+    void setView(float rotX, float rotY);
+
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
@@ -28,6 +30,8 @@ private:
     float width;
     float height;
     bool viewportChanged;
+    float bearing; // in degrees
+    float tilt; // in degrees
     Core *core;
     VkSwapchainKHR swapChain;
     std::vector<VkImage> swapChainImages;

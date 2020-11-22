@@ -48,11 +48,13 @@ void Application::drawFrame() {
     submitInfo.pWaitDstStageMask = waitStages;
 
     std::vector<VkCommandBuffer> buffersToSubmit;
+    int q = 0;
     for(ModelInfo *info : modelInfos) {
         buffersToSubmit.push_back((*info->commandBuffers)[imageIndex]);
+        q = q + 1;
     }
 
-    submitInfo.commandBufferCount = buffersToSubmit.size();
+    submitInfo.commandBufferCount = q;
     submitInfo.pCommandBuffers = buffersToSubmit.data();
 
     VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
@@ -90,9 +92,15 @@ void Application::updateUniformBuffers(uint32_t currentImage) {
     float time = std::chrono::duration<float, std::chrono::milliseconds::period>(std::chrono::high_resolution_clock::now() - startTime).count();
     for(ModelInfo *info : modelInfos) {
         UniformBufferObject ubo{};
-        ubo.model = info->getMat4();
-        ubo.view = glm::lookAt(glm::vec3(2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.0f, 10.0f);
+        ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * info->getMat4();
+
+        glm::vec3 upVector = glm::vec3(0, 0, 1);
+        glm::mat4 camera = glm::rotate(glm::mat4(1.0f), glm::radians(bearing), upVector);
+        glm::vec3 pitchVector = glm::vec3(1, 0, 0);
+        camera = glm::rotate(camera, glm::radians(tilt), pitchVector);
+
+        ubo.view = glm::inverse(camera);
+        ubo.proj = glm::perspective(glm::radians(60.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.0f, 10.0f);
         ubo.proj[1][1] *= -1;
 
         void* data;
@@ -100,6 +108,11 @@ void Application::updateUniformBuffers(uint32_t currentImage) {
         memcpy(data, &ubo, sizeof(ubo));
         vkUnmapMemory(core->getDevice(), (*info->uniformBuffersMemory)[currentImage]);
     }
+}
+
+void Application::setView(float rotX, float rotY) {
+    bearing = rotX;
+    tilt = rotY;
 }
 
 void Application::registerModel(ModelInfo *info) {
@@ -122,6 +135,7 @@ Application::Application(Core *core, GLFWwindow *window) : core(core) {
     glfwGetWindowSize(window, &w, &h);
     width = w;
     height = h;
+    modelInfos = {};
 }
 
 float * Application::getWidth() {
