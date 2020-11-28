@@ -47,15 +47,8 @@ void Application::drawFrame() {
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
 
-    std::vector<VkCommandBuffer> buffersToSubmit;
-    int q = 0;
-    for(ModelInfo *info : modelInfos) {
-        buffersToSubmit.push_back((*info->commandBuffers)[imageIndex]);
-        q = q + 1;
-    }
-
-    submitInfo.commandBufferCount = q;
-    submitInfo.pCommandBuffers = buffersToSubmit.data();
+    submitInfo.commandBufferCount = buffersToSubmit[imageIndex].size();
+    submitInfo.pCommandBuffers = buffersToSubmit[imageIndex].data();
 
     VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
@@ -119,6 +112,12 @@ void Application::registerModel(ModelInfo *info) {
     modelInfos.push_back(info);
 }
 
+void Application::addCommandBuffers(std::vector<VkCommandBuffer> buffers) {
+    for(int i = 0; i < swapChainFramebuffers.size(); ++i) {
+        buffersToSubmit[i].push_back(buffers[i]);
+    }
+}
+
 Application::Application(Core *core, GLFWwindow *window) : core(core) {
     createSwapChain();
     createImageViews();
@@ -136,6 +135,7 @@ Application::Application(Core *core, GLFWwindow *window) : core(core) {
     width = w;
     height = h;
     modelInfos = {};
+    buffersToSubmit.resize(swapChainFramebuffers.size());
 }
 
 float * Application::getWidth() {

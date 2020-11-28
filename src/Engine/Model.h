@@ -32,7 +32,6 @@ private:
     VkDeviceMemory indexBufferMemory;
     std::vector<VkBuffer> uniformBuffers;
     std::vector<VkDeviceMemory> uniformBuffersMemory;
-    std::vector<VkCommandBuffer> commandBuffers;
     VkImage textureImage;
     VkDeviceMemory textureImageMemory;
     VkImageView textureImageView;
@@ -52,7 +51,6 @@ private:
     void createUniformBuffers();
     void createDescriptorPool();
     void createDescriptorSets();
-    void createCommandBuffers();
 };
 
 

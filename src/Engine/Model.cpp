@@ -22,12 +22,10 @@ Model::Model(Material *material, const std::string &textureFilename, const std::
     createUniformBuffers();
     createDescriptorPool();
     createDescriptorSets();
-    createCommandBuffers();
 
-    modelInfo.commandBuffers = &commandBuffers;
     modelInfo.uniformBuffersMemory = &uniformBuffersMemory;
 
-    material->getApplication()->registerModel(&modelInfo);
+    material->registerModel(&modelInfo);
 }
 
 LocOri *Model::getStuff() {
@@ -177,6 +175,8 @@ void Model::createVertexBuffer() {
 
     vkDestroyBuffer(material->getApplication()->getCore()->getDevice(), stagingBuffer, nullptr);
     vkFreeMemory(material->getApplication()->getCore()->getDevice(), stagingBufferMemory, nullptr);
+
+    modelInfo.vertexBuffer = &vertexBuffer;
 }
 
 void Model::createIndexBuffer() {
@@ -197,6 +197,9 @@ void Model::createIndexBuffer() {
 
     vkDestroyBuffer(material->getApplication()->getCore()->getDevice(), stagingBuffer, nullptr);
     vkFreeMemory(material->getApplication()->getCore()->getDevice(), stagingBufferMemory, nullptr);
+
+    modelInfo.indexBuffer = &indexBuffer;
+    modelInfo.indicesSize = static_cast<uint32_t>(indices.size());
 }
 
 void Model::createUniformBuffers() {
@@ -276,80 +279,5 @@ void Model::createDescriptorSets() {
 
         vkUpdateDescriptorSets(material->getApplication()->getCore()->getDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
+    modelInfo.descriptorSets = descriptorSets;
 }
-
-void Model::createCommandBuffers() {
-    commandBuffers.resize(material->getApplication()->getSwapChainFramebuffers().size());
-
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = material->getApplication()->getCore()->getCommandPool();
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
-
-    if(vkAllocateCommandBuffers(material->getApplication()->getCore()->getDevice(), &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate command buffers!");
-    }
-
-    for(size_t i = 0; i < commandBuffers.size(); i++) {
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0; // optional
-        beginInfo.pInheritanceInfo = nullptr; // optional
-
-        if(vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
-            throw std::runtime_error("failed to begin recording command buffer!");
-        }
-
-        VkRenderPassBeginInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = material->getApplication()->getRenderPass();
-        renderPassInfo.framebuffer = material->getApplication()->getSwapChainFramebuffers()[i];
-        renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = material->getApplication()->getSwapChainExtent();
-
-        std::array<VkClearValue, 2> clearValues{}; // order should match order of attachments in createRenderPass
-        clearValues[0] = {0.0f, 0.0f, 0.0f, 1.0f};
-        clearValues[1] = {1.0f, 0};
-
-        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-        renderPassInfo.pClearValues = clearValues.data();
-
-        VkViewport viewport {
-            .x = 0.0f,
-            .y = 0.0f,
-            .width = *(material->getApplication()->getWidth()),
-            .height = *(material->getApplication()->getHeight()),
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f,
-        };
-
-        VkRect2D scissor{
-            .offset = {0, 0},
-            .extent = material->getApplication()->getSwapChainExtent(),
-        };
-
-        vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, material->getGraphicsPipeline());
-
-        vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
-        vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
-
-        VkBuffer vertexBuffers[] = {vertexBuffer};
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-
-        vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, material->getPipelineLayout(), 0, 1, &descriptorSets[i], 0, nullptr);
-
-        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-        vkCmdEndRenderPass(commandBuffers[i]);
-
-        if(vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to record command buffer!");
-        }
-    }
-}
-
-

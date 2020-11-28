@@ -40,8 +40,11 @@ struct LocOri { // location and orientation
 struct ModelInfo { // PositionRotationScale needs better name
     LocOri stuff;
 
-    std::vector<VkCommandBuffer> *commandBuffers;
     std::vector<VkDeviceMemory> *uniformBuffersMemory;
+    VkBuffer *vertexBuffer;
+    VkBuffer *indexBuffer;
+    std::vector<VkDescriptorSet> descriptorSets;
+    uint32_t indicesSize;
 
     glm::mat4 getMat4();
 };

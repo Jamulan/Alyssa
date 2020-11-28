@@ -10,6 +10,14 @@ Material::Material(Application *application, Settings settings, std::string vert
     vertShaderModule = createShaderModule(readFile(vertShaderFilename));
     fragShaderModule = createShaderModule(readFile(fragShaderFilename));
     createGraphicsPipeline();
+    createCommandBuffers();
+}
+
+void Material::registerModel(ModelInfo *info) {
+    models.push_back(info);
+    createCommandBuffers();
+    application->registerModel(info);
+    application->addCommandBuffers(commandBuffers);
 }
 
 VkShaderModule Material::createShaderModule(const std::vector<char>& code) {
@@ -24,6 +32,83 @@ VkShaderModule Material::createShaderModule(const std::vector<char>& code) {
     }
 
     return shaderModule;
+}
+
+void Material::createCommandBuffers() {
+    commandBuffers.resize(application->getSwapChainFramebuffers().size());
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = application->getCore()->getCommandPool();
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+
+    if(vkAllocateCommandBuffers(application->getCore()->getDevice(), &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate command buffers!");
+    }
+
+    for(size_t i = 0; i < commandBuffers.size(); i++) {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = 0; // optional
+        beginInfo.pInheritanceInfo = nullptr; // optional
+
+        if(vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
+            throw std::runtime_error("failed to begin recording command buffer!");
+        }
+
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = application->getRenderPass();
+        renderPassInfo.framebuffer = application->getSwapChainFramebuffers()[i];
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = application->getSwapChainExtent();
+
+        std::array<VkClearValue, 2> clearValues{}; // order should match order of attachments in createRenderPass
+        clearValues[0] = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[1] = {1.0f, 0};
+
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
+
+        VkViewport viewport {
+                .x = 0.0f,
+                .y = 0.0f,
+                .width = *(application->getWidth()),
+                .height = *(application->getHeight()),
+                .minDepth = 0.0f,
+                .maxDepth = 1.0f,
+        };
+
+        VkRect2D scissor{
+                .offset = {0, 0},
+                .extent = application->getSwapChainExtent(),
+        };
+
+        vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+        vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
+        vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
+
+        for(ModelInfo *model : models) {
+            VkBuffer vertexBuffers[] = {*(model->vertexBuffer)};
+            VkDeviceSize offsets[] = {0};
+            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+
+            vkCmdBindIndexBuffer(commandBuffers[i], *(model->indexBuffer), 0, VK_INDEX_TYPE_UINT32);
+
+            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+                                    &(model->descriptorSets[i]), 0, nullptr);
+
+            vkCmdDrawIndexed(commandBuffers[i], model->indicesSize, 1, 0, 0, 0);
+        }
+        vkCmdEndRenderPass(commandBuffers[i]);
+
+        if(vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to record command buffer!");
+        }
+    }
 }
 
 void Material::createGraphicsPipeline() {

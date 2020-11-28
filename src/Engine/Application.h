@@ -17,6 +17,7 @@ public:
 
     Application(Core *core, GLFWwindow *window);
     void registerModel(ModelInfo *info);
+    void addCommandBuffers(std::vector<VkCommandBuffer> buffers);
 
     void setView(float rotX, float rotY);
 
@@ -54,6 +55,7 @@ private:
     std::vector<VkFence> imagesInFlight;
 
     std::vector<ModelInfo*> modelInfos;
+    std::vector<std::vector<VkCommandBuffer>> buffersToSubmit;
     size_t currentFrame;
 
     float lastTime;

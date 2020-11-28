@@ -14,6 +14,8 @@ public:
     Material(Application *application, Settings settings, std::string vertShaderFilename,
              std::string fragShaderFilename);
 
+    void registerModel(ModelInfo *info);
+
     Application *getApplication() const;
 
     const Settings &getSettings() const;
@@ -25,8 +27,11 @@ private:
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;
     Application *application;
+    std::vector<ModelInfo *> models;
+    std::vector<VkCommandBuffer> commandBuffers;
 
     VkShaderModule createShaderModule(const std::vector<char>& code);
+    void createCommandBuffers();
     void createGraphicsPipeline();
 
 public:

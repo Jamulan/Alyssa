@@ -25,8 +25,10 @@ public:
         while(*go) {
             float t = std::chrono::duration<float, std::chrono::seconds::period>(
                     std::chrono::high_resolution_clock::now() - startTime).count();
+            int modifer = -1;
             for(LocOri* stuff : stuffs) {
-                stuff->angle = 30.0f * t;
+                stuff->angle = 30.0f * t * modifer;
+                modifer *= -1;
             }
         }
     }
@@ -60,13 +62,18 @@ int main() {
     Application app = Application(&core, window);
     Material material = Material(&app, settings, "assets/shaders/vert.spv", "assets/shaders/frag.spv");
     LocOri stuff = {
-            .pos = glm::vec3(2.0f, 2.0f, 0.0f),
+            .pos = glm::vec3(1.0f, 2.0f, 0.0f),
             .rot = glm::vec3(0.0f, 0.0f, 1.0f),
             .angle = 0.0f,
             .sca = glm::vec3(0.5f)
     };
     ModelInfo modelInfo = {
             .stuff = stuff
+    };
+    LocOri stuff1 = stuff;
+    stuff1.pos = glm::vec3(-1.0f, 2.0f, 0.0f);
+    ModelInfo modelInfo1 = {
+            .stuff = stuff1
     };
     LocOri stuff0 = {
             .pos = glm::vec3(0.0f, 0.0f, 6.0f),
@@ -79,6 +86,7 @@ int main() {
     };
     Model model0 = Model(&material, "assets/textures/tmpFloor.png", "assets/models/tmpFloor.obj", modelInfo0);
     Model model = Model(&material, "assets/textures/Dodecahedron.png", "assets/models/Dodecahedron.obj", modelInfo);
+    Model model1 = Model(&material, "assets/textures/Dodecahedron.png", "assets/models/Dodecahedron.obj", modelInfo1);
 
     app.setView(0, 0);
 
@@ -88,9 +96,10 @@ int main() {
 
     Update update = Update(&go, window, &app);
     update.stuffs.push_back(model.getStuff());
+    update.stuffs.push_back(model1.getStuff());
 
     std::thread updateModelsThread(&Update::updateModels, &update);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     std::thread updateViewThread(&Update::updateView, &update);
 
     graphicsThread.join();
