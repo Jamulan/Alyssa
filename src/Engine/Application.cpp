@@ -93,7 +93,7 @@ void Application::updateUniformBuffers(uint32_t currentImage) {
         camera = glm::rotate(camera, glm::radians(tilt), pitchVector);
 
         ubo.view = glm::inverse(camera);
-        ubo.proj = glm::perspective(glm::radians(60.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.0f, 10.0f);
+        ubo.proj = glm::perspective(glm::radians(FOV), swapChainExtent.width / (float) swapChainExtent.height, 0.0f, 10.0f);
         ubo.proj[1][1] *= -1;
 
         void* data;
@@ -103,9 +103,10 @@ void Application::updateUniformBuffers(uint32_t currentImage) {
     }
 }
 
-void Application::setView(float rotX, float rotY) {
+void Application::setView(float rotX, float rotY, float fov) {
     bearing = rotX;
     tilt = rotY;
+    FOV = fov;
 }
 
 void Application::registerModel(ModelInfo *info) {

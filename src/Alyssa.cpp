@@ -11,6 +11,9 @@
 
 #define GLM_FOCE_RADIANS
 
+#define WIDTH 1600
+#define HEIGHT 900
+
 static auto startTime = std::chrono::high_resolution_clock::now();
 
 class Update {
@@ -35,11 +38,22 @@ public:
 
     GLFWwindow *window;
     Application *application;
+    double xLook, yLook;
     void updateView() {
-        double xpos, ypos;
+        double xpos = 0, ypos = 0;
+        double xLast, yLast, xDiff, yDiff;
         while(*go) {
+            xLast = xpos; yLast = ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
-            application->setView((xpos-1600.0f)/4.0f, ((ypos-900.0f)/-4.0f) - 100.0f);
+            xpos = (xpos - WIDTH)/6.0f;
+            ypos = (ypos - HEIGHT)/-6.0f;
+
+            xDiff = xpos - xLast;
+            yDiff = ypos - yLast;
+
+            xLook += xDiff;
+            yDiff + yLook < 0 && yDiff + yLook > -180 ? yLook += yDiff : yLook += 0;
+            application->setView(xLook, yLook, 60.0f);
         }
     }
 };
@@ -48,7 +62,7 @@ int main() {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    GLFWwindow *window = glfwCreateWindow(1600, 900, "Alyssa-Demo", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Alyssa-Demo", nullptr, nullptr);
     Settings settings = {
             .msaaSamples = VK_SAMPLE_COUNT_2_BIT,
             .Anisotropy = VK_FALSE,
@@ -88,7 +102,7 @@ int main() {
     Model model = Model(&material, "assets/textures/Dodecahedron.png", "assets/models/Dodecahedron.obj", modelInfo);
     Model model1 = Model(&material, "assets/textures/Dodecahedron.png", "assets/models/Dodecahedron.obj", modelInfo1);
 
-    app.setView(0, 0);
+    app.setView(0, 0, 0);
 
     std::thread graphicsThread(&Application::run, &app);
 

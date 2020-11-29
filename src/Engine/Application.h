@@ -19,7 +19,7 @@ public:
     void registerModel(ModelInfo *info);
     void addCommandBuffers(std::vector<VkCommandBuffer> buffers);
 
-    void setView(float rotX, float rotY);
+    void setView(float rotX, float rotY, float fov);
 
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -33,6 +33,7 @@ private:
     bool viewportChanged;
     float bearing; // in degrees
     float tilt; // in degrees
+    float FOV;
     Core *core;
     VkSwapchainKHR swapChain;
     std::vector<VkImage> swapChainImages;
