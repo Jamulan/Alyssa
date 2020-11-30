@@ -5,5 +5,9 @@
     <libraryRoots>
       <file path="$PROJECT_DIR$/libs" />
     </libraryRoots>
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/GLFW" />
+      <file path="$PROJECT_DIR$/glm" />
+    </excludeRoots>
   </component>
 </project>

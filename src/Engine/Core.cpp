@@ -27,19 +27,18 @@ void Core::createInstance() {
         throw std::runtime_error("validation layers requested, but net availabe");
     }
 
-    VkApplicationInfo appInfo = {
-            .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-            .pApplicationName = "Alyssa App 0",
-            .applicationVersion = VK_MAKE_VERSION(0, 0, 0),
-            .pEngineName = "Alyssa",
-            .engineVersion = VK_MAKE_VERSION(0, 0, 0),
-            .apiVersion = VK_API_VERSION_1_0
-    };
+    VkApplicationInfo appInfo = {};
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pApplicationName = "Alyssa App 0";
+    appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
+    appInfo.pEngineName = "Alyssa";
+    appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 0);
+    appInfo.apiVersion = VK_API_VERSION_1_0;
 
-    VkInstanceCreateInfo createInfo = {
-            .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-            .pApplicationInfo = &appInfo
-    };
+    VkInstanceCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    createInfo.pApplicationInfo = &appInfo;
+
     if(enableValidationLayers) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -308,7 +307,7 @@ VkQueue_T *Core::getGraphicsQueue() const {
     return graphicsQueue;
 }
 
-VkCommandPool_T *Core::getCommandPool() const {
+VkCommandPool Core::getCommandPool() const {
     return commandPool;
 }
 
@@ -320,7 +319,7 @@ GLFWwindow *Core::getWindow() const {
     return window;
 }
 
-VkSurfaceKHR_T * Core::getSurface() const {
+VkSurfaceKHR Core::getSurface() const {
     return surface;
 }
 

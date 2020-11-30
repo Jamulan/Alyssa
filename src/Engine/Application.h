@@ -89,11 +89,9 @@ public:
 
     const VkExtent2D &getSwapChainExtent() const;
 
-    VkFormat getSwapChainImageFormat() const;
-
     Core *getCore() const;
 
-    VkRenderPass_T *getRenderPass() const;
+    VkRenderPass getRenderPass() const;
 
     VkDescriptorSetLayout const * getDescriptorSetLayout() const;
 

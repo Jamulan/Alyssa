@@ -490,11 +490,7 @@ Core *Application::getCore() const {
     return core;
 }
 
-VkFormat Application::getSwapChainImageFormat() const {
-    return swapChainImageFormat;
-}
-
-VkRenderPass_T *Application::getRenderPass() const {
+VkRenderPass Application::getRenderPass() const {
     return renderPass;
 }
 

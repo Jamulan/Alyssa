@@ -76,11 +76,11 @@ public:
 
     VkQueue_T * getPresentQueue() const;
 
-    VkCommandPool_T *getCommandPool() const;
+    VkCommandPool getCommandPool() const;
 
     GLFWwindow *getWindow() const;
 
-    VkSurfaceKHR_T * getSurface() const;
+    VkSurfaceKHR getSurface() const;
 
 };
 

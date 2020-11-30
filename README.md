@@ -9,12 +9,12 @@ based on [this](https://vulkan-tutorial.com)
 
 ## dependencies
 - VulkanSDK 1.2.148.1
-- GLFW
+- GLFW3
 - GLM
 - [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h)
 - [tiny_obj_loader](https://github.com/tinyobjloader/tinyobjloader)
 
-Install on Arch:
+### Install on Arch:
 
 Make sure that $VULKAN_SDK is set to the path of the SDK (ex; `~/VulkanSDK/x86_64`)
 
@@ -23,6 +23,17 @@ Make sure that $VULKAN_SDK is set to the path of the SDK (ex; `~/VulkanSDK/x86_6
 `glfw-wayland` *should* work but is untested
 
 run `updateLibs.sh` to fetch `stb_image` and `tiny_obj_loader` and create the `libs` directory
+
+### Install on Windows:
+
+Install VulkanSDK from [here](https://vulkan.lunarg.com/sdk/home)
+
+put source files for glfw in a folder named "GLFW"
+
+put source files for glm in a folder named "glm"
+
+run `updateLibs.sh` to fetch `stb_image` and `tiny_obj_loader` and create the `libs` directory
+
 
 ## why bother?
 - Making my own seemed easier than learning to use a different engine

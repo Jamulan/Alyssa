@@ -34,10 +34,6 @@ private:
     void createCommandBuffers();
     void createGraphicsPipeline();
 
-public:
-    VkPipeline_T *getGraphicsPipeline() const;
-
-    VkPipelineLayout_T *getPipelineLayout() const;
 };
 
 

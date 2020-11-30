@@ -71,19 +71,17 @@ void Material::createCommandBuffers() {
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
 
-        VkViewport viewport {
-                .x = 0.0f,
-                .y = 0.0f,
-                .width = *(application->getWidth()),
-                .height = *(application->getHeight()),
-                .minDepth = 0.0f,
-                .maxDepth = 1.0f,
-        };
+        VkViewport viewport = {};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = *(application->getWidth());
+        viewport.height = *(application->getHeight());
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
 
-        VkRect2D scissor{
-                .offset = {0, 0},
-                .extent = application->getSwapChainExtent(),
-        };
+        VkRect2D scissor = {};
+        scissor.offset = {0, 0};
+        scissor.extent = application->getSwapChainExtent();
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
@@ -112,19 +110,17 @@ void Material::createCommandBuffers() {
 }
 
 void Material::createGraphicsPipeline() {
-    VkPipelineShaderStageCreateInfo vertShaderStageModule = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-            .stage = VK_SHADER_STAGE_VERTEX_BIT,
-            .module = vertShaderModule,
-            .pName = "main" // maybe don't hard code?
-    };
+    VkPipelineShaderStageCreateInfo vertShaderStageModule = {};
+    vertShaderStageModule.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertShaderStageModule.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertShaderStageModule.module = vertShaderModule;
+    vertShaderStageModule.pName = "main"; // maybe don't hard code?
 
-    VkPipelineShaderStageCreateInfo fragShaderStageModule = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-            .stage = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .module = fragShaderModule,
-            .pName = "main" // maybe don't hard code?
-    };
+    VkPipelineShaderStageCreateInfo fragShaderStageModule = {};
+    fragShaderStageModule.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragShaderStageModule.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragShaderStageModule.module = fragShaderModule;
+    fragShaderStageModule.pName = "main"; // maybe don't hard code?
 
     VkPipelineShaderStageCreateInfo shaderStages[] = {
             vertShaderStageModule, fragShaderStageModule
@@ -224,11 +220,10 @@ void Material::createGraphicsPipeline() {
             VK_DYNAMIC_STATE_SCISSOR,
     };
 
-    VkPipelineDynamicStateCreateInfo dynamicState {
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-        .dynamicStateCount = 2,
-        .pDynamicStates = dynamicStates,
-    };
+    VkPipelineDynamicStateCreateInfo dynamicState = {};
+    dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicState.dynamicStateCount = 2;
+    dynamicState.pDynamicStates = dynamicStates;
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -273,13 +268,5 @@ const Settings &Material::getSettings() const {
 
 Application *Material::getApplication() const {
     return application;
-}
-
-VkPipeline_T *Material::getGraphicsPipeline() const {
-    return graphicsPipeline;
-}
-
-VkPipelineLayout_T *Material::getPipelineLayout() const {
-    return pipelineLayout;
 }
 
