@@ -19,6 +19,8 @@ static auto startTime = std::chrono::high_resolution_clock::now();
 class Update {
 public:
     Update(bool *go, GLFWwindow *window, Application *application) : go(go), window(window), application(application) {
+        yLook = 0;
+        xLook = 0;
         stuffs = {};
     }
 
@@ -34,6 +36,9 @@ public:
                 modifer *= -1;
             }
         }
+    }
+    void printStuff() {
+        printf("stuff");
     }
 
     GLFWwindow *window;
@@ -52,9 +57,10 @@ public:
             yDiff = ypos - yLast;
 
             xLook += xDiff;
-            yDiff + yLook < 0 && yDiff + yLook > -180 ? yLook += yDiff : yLook += 0;
+            if(yDiff + yLook < 0 && yDiff + yLook > -180) {
+                yLook += yDiff;
+            }
             application->setView(xLook, yLook, 60.0f);
-            printf("%f\n", yLook);
         }
     }
 };
@@ -105,22 +111,20 @@ int main() {
     Model model1 = Model(&material, "assets/textures/Dodecahedron.png", "assets/models/Dodecahedron.obj", modelInfo1);
 
     app.setView(180, -120, 60.0f);
-    app.run();
 
-//    std::thread graphicsThread(&Application::run, &app);
-//
-//    bool go = true;
-//
-//    Update update = Update(&go, window, &app);
-//    update.stuffs.push_back(model.getStuff());
-//    update.stuffs.push_back(model1.getStuff());
-//
-//    std::thread updateModelsThread(&Update::updateModels, &update);
-//    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-//    std::thread updateViewThread(&Update::updateView, &update);
-//
-//    graphicsThread.join();
-//    go = false;
-//    updateViewThread.join();
-//    updateModelsThread.join();
+
+    bool go = true;
+
+    Update update = Update(&go, window, &app);
+    update.stuffs.push_back(model.getStuff());
+    update.stuffs.push_back(model1.getStuff());
+
+    std::thread updateModelsThread(&Update::updateModels, &update);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    std::thread updateViewThread(&Update::updateView, &update);
+
+    app.run();
+    go = false;
+    updateViewThread.join();
+    updateModelsThread.join();
 }
