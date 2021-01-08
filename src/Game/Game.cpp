@@ -15,9 +15,9 @@ Game::Game(int width, int height, Settings settings) {
     app = &a;
     Material m = Material(app, settings, "assets/shaders/vert.spv", "assets/shaders/vert.spv");
     mainMaterial = &m;
-    currentLevel = nullptr;
 }
 
-void Game::loadLevel(Level *level) {
-    currentLevel = level;
+Material *Game::getMainMaterial() {
+    return mainMaterial;
 }
+

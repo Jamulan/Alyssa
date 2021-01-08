@@ -6,20 +6,20 @@
 #define ALYSSA_GAME_H
 
 
-#include "Level.h"
+#include "../Engine/Util.h"
+#include "../Engine/Material.h"
+#include "Entity.h"
 
 class Game {
 public:
     Game(int width, int height, Settings settings);
-    void loadLevel(Level *level);
-    void startLevel();
+    Material *getMainMaterial();
 
 private:
     GLFWwindow *window;
     Core *core;
     Application *app;
     Material *mainMaterial;
-    Level *currentLevel;
 };
 
 

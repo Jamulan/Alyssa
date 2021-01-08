@@ -6,14 +6,17 @@
 #define ALYSSA_ENTITY_H
 
 
+#include "Game.h"
 #include "../Engine/Model.h"
 
 class Entity {
-    void update();
-    void load();
+public:
+    Entity(Game *game, const std::string &textureFilename, const std::string &modelFilename, LocOri locOri);
 
 private:
-    Model model;
+    Model *model;
+    Game *game;
+    LocOri *locOri;
 
 };
 

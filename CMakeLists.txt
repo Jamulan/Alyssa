@@ -20,7 +20,7 @@ ENDIF()
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Alyssa src/Engine/Util.cpp src/Engine/Util.h src/Engine/Core.cpp src/Engine/Core.h src/Engine/Application.cpp src/Engine/Application.h src/Engine/Material.cpp src/Engine/Material.h src/Engine/Model.cpp src/Engine/Model.h src/Alyssa.cpp src/Game/Level.cpp src/Game/Level.h src/Game/Entity.cpp src/Game/Entity.h src/Game/PlayerCharacter.cpp src/Game/PlayerCharacter.h src/Game/Game.cpp src/Game/Game.h)
+add_executable(Alyssa src/Engine/Util.cpp src/Engine/Util.h src/Engine/Core.cpp src/Engine/Core.h src/Engine/Application.cpp src/Engine/Application.h src/Engine/Material.cpp src/Engine/Material.h src/Engine/Model.cpp src/Engine/Model.h src/Alyssa.cpp src/Game/Entity.cpp src/Game/Entity.h src/Game/PlayerCharacter.cpp src/Game/PlayerCharacter.h src/Game/Game.cpp src/Game/Game.h)
 target_link_libraries(Alyssa glfw)
 IF(WIN32)
     target_link_libraries(Alyssa glm)
